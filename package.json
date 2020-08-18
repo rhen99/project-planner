@@ -12,7 +12,9 @@
   "dependencies": {
     "config": "^3.3.1",
     "express": "^4.17.1",
-    "mongoose": "^5.9.29"
+    "moment": "^2.27.0",
+    "mongoose": "^5.9.29",
+    "uuid": "^8.3.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
