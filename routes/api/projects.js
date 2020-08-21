@@ -48,5 +48,24 @@ router.post("/create", async (req, res) => {
     });
   }
 });
+router.put("/:id&:step", async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    const steps = project.steps;
+    // steps[req.params.step].completed = !steps[req.params.step].completed;
+
+    steps.forEach((step) => {
+      console.log(step.completed == false);
+    });
+
+    // await project.save();
+
+    res.json({
+      msg: "Finished a step.",
+    });
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 module.exports = router;

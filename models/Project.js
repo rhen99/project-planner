@@ -9,10 +9,18 @@ const projectSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  steps: {
-    type: Array,
-    required: true,
-  },
+  steps: [
+    {
+      step_name: {
+        type: String,
+        required: true,
+      },
+      completed: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
   created_at: {
     type: Date,
     default: Date.now(),
