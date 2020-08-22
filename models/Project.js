@@ -18,6 +18,7 @@ const projectSchema = new mongoose.Schema({
       completed: {
         type: Number,
         required: true,
+        default: 0,
       },
     },
   ],
