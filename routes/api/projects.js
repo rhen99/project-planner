@@ -55,10 +55,13 @@ router.put("/:id&:step", async (req, res) => {
 
     steps[req.params.step].completed =
       steps[req.params.step].completed === 0 ? 1 : 0;
-    const passedSteps = steps.filter((step) => step.completed !== 0);
-    // project.progress = Math.floor(100 /)
-
-    //await project.save();
+    const progress = steps
+      .filter((step) => step.completed !== 0)
+      .map(() => Math.round(100 / steps.length))
+      .reduce((acc, curr) => acc + curr, 0);
+    project.progress = progress;
+    await project.save();
+    console.log(progress);
 
     res.json({
       msg: "Finished a step.",
