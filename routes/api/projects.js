@@ -10,7 +10,12 @@ const Project = require("../../models/Project");
 router.get("/", async (req, res) => {
   try {
     const projects = await Project.find();
-
+    projects.forEach((project) => {
+      if (new Date(project.deadline).getTime() - Date.now() <= 0) {
+        project.status = "Failed";
+        project.save();
+      }
+    });
     res.json(projects);
   } catch (err) {
     console.log(err);
@@ -49,19 +54,28 @@ router.post("/create", async (req, res) => {
   }
 });
 router.put("/:id&:step", async (req, res) => {
+  const { short_description } = req.body;
   try {
     const project = await Project.findById(req.params.id);
     const steps = project.steps;
 
+    if (!short_description)
+      return res.status(400).json({
+        msg: "Please describe what you did in this step.",
+      });
+
     steps[req.params.step].completed =
       steps[req.params.step].completed === 0 ? 1 : 0;
+
+    steps[req.params.step].short_description = short_description;
+
     const progress = steps
       .filter((step) => step.completed !== 0)
-      .map(() => Math.round(100 / steps.length))
+      .map(() => 100 / steps.length)
       .reduce((acc, curr) => acc + curr, 0);
+
     project.progress = progress;
     await project.save();
-    console.log(progress);
 
     res.json({
       msg: "Finished a step.",

@@ -20,6 +20,10 @@ const projectSchema = new mongoose.Schema({
         required: true,
         default: 0,
       },
+      short_description: {
+        type: String,
+        default: null,
+      },
     },
   ],
   created_at: {
