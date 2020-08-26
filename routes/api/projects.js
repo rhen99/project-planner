@@ -58,16 +58,24 @@ router.put("/:id&:step", async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
     const steps = project.steps;
+    if (steps[req.params.step].completed == 0) {
+      if (!short_description)
+        return res.status(400).json({
+          msg: "Please describe what you did in this step.",
+        });
 
-    if (!short_description)
-      return res.status(400).json({
-        msg: "Please describe what you did in this step.",
-      });
+      steps[req.params.step].completed = 1;
 
-    steps[req.params.step].completed =
-      steps[req.params.step].completed === 0 ? 1 : 0;
+      steps[req.params.step].short_description = short_description;
 
-    steps[req.params.step].short_description = short_description;
+      steps[req.params.step].date = Date.now();
+    } else {
+      steps[req.params.step].completed = 0;
+
+      steps[req.params.step].short_description = null;
+
+      steps[req.params.step].date = null;
+    }
 
     const progress = steps
       .filter((step) => step.completed !== 0)
@@ -76,10 +84,6 @@ router.put("/:id&:step", async (req, res) => {
 
     project.progress = progress;
     await project.save();
-
-    res.json({
-      msg: "Finished a step.",
-    });
   } catch (err) {
     console.log(err);
   }

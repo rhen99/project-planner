@@ -24,6 +24,10 @@ const projectSchema = new mongoose.Schema({
         type: String,
         default: null,
       },
+      date: {
+        type: Date,
+        default: null,
+      },
     },
   ],
   created_at: {
