@@ -2,6 +2,7 @@ const express = require("express");
 const uuid = require("uuid");
 const router = express.Router();
 const Project = require("../../models/Project");
+const e = require("express");
 
 // @route GET api/projects/
 // @desc Get all your projects
@@ -33,6 +34,10 @@ router.post("/create", async (req, res) => {
   const { name, description, steps, deadline } = req.body;
 
   try {
+    if (!name || !steps || !deadline)
+      return res.status(400).json({
+        msg: "Please fill in all fields.",
+      });
     const newProject = await new Project({
       name,
       description,
@@ -58,23 +63,29 @@ router.put("/:id&:step", async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
     const steps = project.steps;
-    if (steps[req.params.step].completed == 0) {
-      if (!short_description)
-        return res.status(400).json({
-          msg: "Please describe what you did in this step.",
-        });
-
-      steps[req.params.step].completed = 1;
-
-      steps[req.params.step].short_description = short_description;
-
-      steps[req.params.step].date = Date.now();
+    if (new Date(project.deadline).getTime() - Date.now() <= 0) {
+      return res.status(409).json({
+        msg: "This project had already reached the deadline.",
+      });
     } else {
-      steps[req.params.step].completed = 0;
+      if (steps[req.params.step].completed == 0) {
+        if (!short_description)
+          return res.status(400).json({
+            msg: "Please describe what you did in this step.",
+          });
 
-      steps[req.params.step].short_description = null;
+        steps[req.params.step].completed = 1;
 
-      steps[req.params.step].date = null;
+        steps[req.params.step].short_description = short_description;
+
+        steps[req.params.step].date = Date.now();
+      } else {
+        steps[req.params.step].completed = 0;
+
+        steps[req.params.step].short_description = null;
+
+        steps[req.params.step].date = null;
+      }
     }
 
     const progress = steps
@@ -83,7 +94,19 @@ router.put("/:id&:step", async (req, res) => {
       .reduce((acc, curr) => acc + curr, 0);
 
     project.progress = progress;
+    if (project.progress >= 100) {
+      project.status = "Success";
+    }
     await project.save();
+    res.json(
+      steps[req.params.step].completed == 1
+        ? {
+            msg: "Step done",
+          }
+        : {
+            msg: "Step Undone",
+          }
+    );
   } catch (err) {
     console.log(err);
   }
