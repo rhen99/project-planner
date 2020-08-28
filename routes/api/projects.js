@@ -1,14 +1,14 @@
 const express = require("express");
 const uuid = require("uuid");
 const router = express.Router();
+const auth = require("../../middleware/auth");
 const Project = require("../../models/Project");
-const e = require("express");
 
 // @route GET api/projects/
 // @desc Get all your projects
 // @access Private (for now)
 
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
   try {
     const projects = await Project.find();
     projects.forEach((project) => {
@@ -30,7 +30,7 @@ router.get("/", async (req, res) => {
 // @desc Create new project
 // @access Public (for now)
 
-router.post("/create", async (req, res) => {
+router.post("/create", auth, async (req, res) => {
   const { name, description, steps, deadline } = req.body;
 
   try {
