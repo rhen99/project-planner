@@ -32,12 +32,11 @@ router.get("/", auth, async (req, res) => {
 
 router.post("/create", auth, async (req, res) => {
   const { name, description, steps, deadline } = req.body;
-
+  if (!name || !steps || !deadline)
+    return res.status(400).json({
+      msg: "Please fill in all fields.",
+    });
   try {
-    if (!name || !steps || !deadline)
-      return res.status(400).json({
-        msg: "Please fill in all fields.",
-      });
     const newProject = await new Project({
       name,
       description,
@@ -109,6 +108,9 @@ router.put("/:id&:step", async (req, res) => {
     );
   } catch (err) {
     console.log(err);
+    res.status(500).json({
+      msg: "Server Error",
+    });
   }
 });
 
