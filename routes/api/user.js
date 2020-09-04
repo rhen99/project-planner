@@ -76,7 +76,7 @@ router.post("/register", async (req, res) => {
           jwt.sign(
             { id: newUser.id },
             config.get("jwtSecret"),
-            { expiresIn: 3600 },
+            { expiresIn: 2628000 },
             (err, token) => {
               if (err) throw err;
 
@@ -90,7 +90,9 @@ router.post("/register", async (req, res) => {
               });
             }
           );
-        } catch (err) {}
+        } catch (err) {
+          console.error(err);
+        }
       });
     });
   } catch (err) {
@@ -105,7 +107,49 @@ router.post("/register", async (req, res) => {
 // @desc Authenticate user
 // @access Public
 
-router.post("/login", async (req, res) => {});
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password)
+    return res.status(400).json({
+      msg: "Please fill in all fields.",
+    });
+  try {
+    const user = await User.findOne({ username });
+    if (!user)
+      return res.status(400).json({
+        msg: "This user doesn't exist.",
+      });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch)
+      return res.status(400).json({
+        msg: "Password is incorrect.",
+      });
+
+    jwt.sign(
+      { id: user.id },
+      config.get("jwtSecret"),
+      { expiresIn: 2628000 },
+      (err, token) => {
+        if (err) throw err;
+
+        res.json({
+          token,
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+          },
+        });
+      }
+    );
+  } catch (err) {
+    console.error(err);
+  }
+});
+
 // @route api/user
 // @desc Get the user.
 // @access Private
