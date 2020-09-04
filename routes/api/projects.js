@@ -57,7 +57,7 @@ router.post("/create", auth, async (req, res) => {
     });
   }
 });
-router.put("/:id&:step", async (req, res) => {
+router.put("/:id&:step", auth, async (req, res) => {
   const { short_description } = req.body;
   try {
     const project = await Project.findById(req.params.id);

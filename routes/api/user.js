@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const config = require("config");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/User");
+const auth = require("../../middleware/auth");
 
 // @route api/user/register
 // @desc Create a user.
@@ -147,6 +148,9 @@ router.post("/login", async (req, res) => {
     );
   } catch (err) {
     console.error(err);
+    res.status(500).json({
+      msg: "Server Error",
+    });
   }
 });
 
@@ -154,6 +158,16 @@ router.post("/login", async (req, res) => {
 // @desc Get the user.
 // @access Private
 
-router.get("/", async (req, res) => {});
+router.get("/", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      msg: "Server Error",
+    });
+  }
+});
 
 module.exports = router;
