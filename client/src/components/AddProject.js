@@ -28,7 +28,7 @@ function AddProject() {
   const enterYear = (e) => {
     setYear(e.target.value);
   };
-  const addStep = () => setSteps([...steps, step]);
+  const addStep = () => setSteps([...steps, { step_name: step }]);
   return (
     <div className="my-3">
       <Button variant="primary" onClick={handleShow}>
