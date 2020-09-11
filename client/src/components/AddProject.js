@@ -4,6 +4,8 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import ListGroup from "react-bootstrap/ListGroup";
 import Col from "react-bootstrap/Col";
+import Alert from "react-bootstrap/Alert";
+import axios from "axios";
 
 function AddProject() {
   const [show, setShow] = useState(false);
@@ -11,33 +13,50 @@ function AddProject() {
   const [description, setDescription] = useState(null);
   const [step, setStep] = useState(null);
   const [steps, setSteps] = useState([]);
-  const [month, setMonth] = useState(0);
-  const [day, setDay] = useState(0);
-  const [year, setYear] = useState(new Date().getFullYear());
+  const [month, setMonth] = useState(null);
+  const [day, setDay] = useState(null);
+  const [year, setYear] = useState(null);
   const [deadline, setDeadline] = useState(null);
+  const [error, setError] = useState(null);
+
+  const errorAlert = !error ? null : <Alert variant="danger">{error}</Alert>;
 
   const handleShow = () => setShow(true);
   const handleClose = () => setShow(false);
+  const handleSubmit = (e) => {
+    setError(null);
+    e.preventDefault();
+    if (!month || !day || !year)
+      return setError("Please fill in all required fields.");
 
-  const enterMonth = (e) => {
-    setMonth(e.target.value);
+    setDeadline(`0${month}/0${day}/${year}`);
   };
-  const enterDay = (e) => {
-    setDay(e.target.value);
-  };
-  const enterYear = (e) => {
-    setYear(e.target.value);
-  };
+
   const addStep = () => setSteps([...steps, { step_name: step }]);
   return (
     <div className="my-3">
       <Button variant="primary" onClick={handleShow}>
         Add Project
       </Button>
-      <Modal show={show} onHide={handleClose} backdrop="static">
+      <Modal
+        show={show}
+        onHide={handleClose}
+        backdrop="static"
+        onExit={() => {
+          setName(null);
+          setDescription(null);
+          setStep(null);
+          setSteps([]);
+          setDeadline(null);
+          setDay(null);
+          setMonth(null);
+          setYear(null);
+        }}
+      >
         <Modal.Header closeButton></Modal.Header>
         <Modal.Body>
           <Form>
+            {errorAlert}
             <Form.Group controlId="project_name">
               <Form.Label>Project Name</Form.Label>
               <Form.Control
@@ -87,7 +106,7 @@ function AddProject() {
                     max="12"
                     className="form-control"
                     placeholder="Month"
-                    onChange={enterMonth}
+                    onChange={(e) => setMonth(e.target.value)}
                   />
                 </Col>
                 <Col>
@@ -97,16 +116,16 @@ function AddProject() {
                     max="31"
                     className="form-control"
                     placeholder="Day"
-                    onChange={enterDay}
+                    onChange={(e) => setDay(e.target.value)}
                   />
                 </Col>
                 <Col>
                   <input
                     type="number"
-                    min={year}
+                    min={new Date().getFullYear()}
                     className="form-control"
                     placeholder="Year"
-                    onChange={enterYear}
+                    onChange={(e) => setYear(e.target.value)}
                   />
                 </Col>
               </Form.Row>
@@ -123,7 +142,9 @@ function AddProject() {
           </ListGroup> */}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary">Submit Project</Button>
+          <Button variant="primary" onClick={handleSubmit}>
+            Submit Project
+          </Button>
         </Modal.Footer>
       </Modal>
     </div>

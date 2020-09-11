@@ -42,7 +42,7 @@ router.post("/create", auth, async (req, res) => {
       description,
       deadline,
       steps,
-      creator_id: uuid.v4(),
+      creator_id: req.user.id,
     });
     await newProject.save();
 

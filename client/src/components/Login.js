@@ -1,23 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 
 function Login() {
+  const [username, setUserName] = useState(null);
+  const [password, setPassword] = useState(null);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios
+      .post("/api/user/login", { username, password })
+      .then((res) => {
+        localStorage.setItem("token", res.data.token);
+      })
+      .catch((err) => console.log(err));
+  };
+
   return (
     <Card>
       <Card.Body>
-        <Form>
+        <Form onSubmit={handleSubmit}>
           <Form.Group controlId="username">
             <Form.Label>Username</Form.Label>
-            <Form.Control type="text"></Form.Control>
+            <Form.Control
+              type="text"
+              onChange={(e) => setUserName(e.target.value)}
+            ></Form.Control>
             <Form.Text className="text-muted">
               Enter your username here.
             </Form.Text>
           </Form.Group>
           <Form.Group controlId="password">
             <Form.Label>Password</Form.Label>
-            <Form.Control type="password"></Form.Control>
+            <Form.Control
+              type="password"
+              onChange={(e) => setPassword(e.target.value)}
+            ></Form.Control>
             <Form.Text className="text-muted">
               Enter your password here.
             </Form.Text>
