@@ -1,44 +1,49 @@
 import React, { useEffect, useState } from "react";
+import { Switch, BrowserRouter as Router } from "react-router-dom";
+import { ProtectedRoute, GuestRoute } from "./components/Route";
 import axios from "axios";
 import Header from "./components/Header";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import ProjectList from "./components/ProjectList";
-import Container from "react-bootstrap/Container";
-import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
 
 function App() {
+  const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState(null);
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("/api/user", {
-        headers: {
-          "x-auth-token": localStorage.getItem("token"),
-        },
-      })
-      .then((res) => setUser(res.data))
-      .catch((err) => console.log(err));
+    if (localStorage.getItem("token")) {
+      axios
+        .get("/api/user", {
+          headers: {
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        })
+        .then((res) => setUser(res.data))
+        .catch((err) => {
+          console.log(err);
+          localStorage.removeItem("token");
+        });
+    }
   }, [projects]);
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      setIsAuth(true);
+    } else {
+      setIsAuth(false);
+    }
+  }, []);
   return (
     <>
-      {console.log(user)}
-      <Header></Header>
-      <Container>
-        <Row className="justify-content-md-center mt-5">
-          <Col xs lg="6">
-            <Login />
-            {/* <Register /> */}
-          </Col>
-        </Row>
-        {/* <Row className="mt-5">
-          <Col>
-            <ProjectList />
-          </Col>
-        </Row> */}
-      </Container>
+      <Router>
+        <Header isAuth={isAuth} setIsAuth={setIsAuth}></Header>
+        <Switch>
+          <GuestRoute path="/login" exact component={Login} />
+          <GuestRoute path="/register" exact component={Register} />
+          <ProtectedRoute path="/" exact component={ProjectList} />
+        </Switch>
+      </Router>
     </>
   );
 }
