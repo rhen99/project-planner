@@ -1,70 +1,99 @@
 import React, { useState } from "react";
-import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import ListGroup from "react-bootstrap/ListGroup";
 import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
 import Alert from "react-bootstrap/Alert";
 import axios from "axios";
 
 function AddProject() {
-  const [show, setShow] = useState(false);
-  const [name, setName] = useState(null);
-  const [description, setDescription] = useState(null);
-  const [step, setStep] = useState(null);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [step, setStep] = useState("");
   const [steps, setSteps] = useState([]);
-  const [month, setMonth] = useState(null);
-  const [day, setDay] = useState(null);
-  const [year, setYear] = useState(null);
-  const [deadline, setDeadline] = useState(null);
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [day, setDay] = useState(new Date().getDate());
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [hour, setHour] = useState(12);
+  const [minutes, setMinutes] = useState(0);
+  const [ampm, setAMPM] = useState("am");
+  const [deadline, setDeadline] = useState("");
   const [error, setError] = useState(null);
 
   const errorAlert = !error ? null : <Alert variant="danger">{error}</Alert>;
 
-  const handleShow = () => setShow(true);
-  const handleClose = () => setShow(false);
   const handleSubmit = (e) => {
-    setError(null);
     e.preventDefault();
+    setError(null);
     if (!month || !day || !year)
       return setError("Please fill in all required fields.");
 
-    setDeadline(`0${month}/0${day}/${year}`);
+    const date = [month, day, year];
+    const time = [hour, minutes];
+
+    const zeroesOnDate = date
+      .map((num) => {
+        if (parseInt(num) < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      })
+      .join("/");
+
+    const zeroesOnTime = time
+      .map((num) => {
+        if (parseInt(num) < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      })
+      .join(":");
+    setDeadline(`${zeroesOnDate} ${zeroesOnTime} ${ampm}`);
+    axios
+      .post(
+        "/api/projects/create",
+        { name, description, steps, deadline },
+        {
+          headers: {
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        }
+      )
+      .then((res) => console.log(res.data))
+      .catch((err) => setError(err.response.data.msg));
+  };
+  const addStep = (e) => {
+    e.preventDefault();
+    if (!step) return false;
+    setSteps([...steps, { step_name: step }]);
+    setStep("");
+  };
+  const removeStep = (index) => {
+    const newSteps = [...steps];
+    newSteps.splice(index, 1);
+    setSteps(newSteps);
   };
 
-  const addStep = () => setSteps([...steps, { step_name: step }]);
   return (
-    <div className="my-3">
-      <Button variant="primary" onClick={handleShow}>
-        Add Project
-      </Button>
-      <Modal
-        show={show}
-        onHide={handleClose}
-        backdrop="static"
-        onExit={() => {
-          setName(null);
-          setDescription(null);
-          setStep(null);
-          setSteps([]);
-          setDeadline(null);
-          setDay(null);
-          setMonth(null);
-          setYear(null);
-        }}
-      >
-        <Modal.Header closeButton></Modal.Header>
-        <Modal.Body>
-          <Form>
+    <Container>
+      <Row className="justify-content-md-center mt-5">
+        <Col xs lg="8">
+          <h1>Add Form</h1>
+          <Form className="my-3" onSubmit={handleSubmit}>
             {errorAlert}
             <Form.Group controlId="project_name">
               <Form.Label>Project Name</Form.Label>
               <Form.Control
                 onChange={(e) => setName(e.target.value)}
                 type="text"
+                value={name}
               ></Form.Control>
               <Form.Text className="text-muted">
-                Enter your project name here.
+                Enter your project name here. (required)
               </Form.Text>
             </Form.Group>
             <Form.Group controlId="project_description">
@@ -76,6 +105,7 @@ function AddProject() {
                 style={{
                   resize: "none",
                 }}
+                value={description}
               ></Form.Control>
               <Form.Text className="text-muted">
                 Enter your project description here. (optional)
@@ -87,13 +117,29 @@ function AddProject() {
                 <Form.Control
                   onChange={(e) => setStep(e.target.value)}
                   type="text"
+                  value={step}
                 ></Form.Control>
                 <Button variant="primary" onClick={addStep}>
                   Add
                 </Button>
               </div>
+              <ListGroup className="mt-3">
+                {steps.map((step, index) => (
+                  <ListGroup.Item key={index}>
+                    {step.step_name}{" "}
+                    <Button
+                      onClick={() => removeStep(index)}
+                      variant="danger"
+                      size="sm"
+                      className="float-right"
+                    >
+                      Remove
+                    </Button>
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
               <Form.Text className="text-muted">
-                Enter all the steps here.
+                Enter all the steps here. (required)
               </Form.Text>
             </Form.Group>
             <Form.Group>
@@ -107,6 +153,7 @@ function AddProject() {
                     className="form-control"
                     placeholder="Month"
                     onChange={(e) => setMonth(e.target.value)}
+                    value={month < 10 ? `0${month}` : month}
                   />
                 </Col>
                 <Col>
@@ -117,6 +164,7 @@ function AddProject() {
                     className="form-control"
                     placeholder="Day"
                     onChange={(e) => setDay(e.target.value)}
+                    value={day < 10 ? `0${day}` : day}
                   />
                 </Col>
                 <Col>
@@ -126,28 +174,61 @@ function AddProject() {
                     className="form-control"
                     placeholder="Year"
                     onChange={(e) => setYear(e.target.value)}
+                    value={year}
                   />
                 </Col>
               </Form.Row>
+              <Form.Row className="mt-3">
+                <Col>
+                  <input
+                    type="number"
+                    min="1"
+                    max="12"
+                    value={hour < 10 ? `0${hour}` : hour}
+                    className="form-control"
+                    placeholder="Hour"
+                    onChange={(e) => setHour(e.target.value)}
+                  />
+                </Col>
+                <Col>
+                  <input
+                    type="number"
+                    min="0"
+                    max="59"
+                    value={minutes < 10 ? `0${minutes}` : minutes}
+                    className="form-control"
+                    placeholder="Minutes"
+                    onChange={(e) => setMinutes(e.target.value)}
+                  />
+                </Col>
+                <Col>
+                  <Form.Control
+                    as="select"
+                    onChange={(e) => setAMPM(e.target.value)}
+                  >
+                    <option value="am" defaultValue>
+                      AM
+                    </option>
+                    <option value="pm">PM</option>
+                  </Form.Control>
+                </Col>
+              </Form.Row>
               <Form.Text className="text-muted">
-                Enter project deadline here.
+                Enter project deadline here. (required)
               </Form.Text>
             </Form.Group>
+
+            <Button
+              variant="primary"
+              value="Submit Project"
+              type="submit"
+              as="input"
+              block
+            />
           </Form>
-          {/* <ListGroup>
-            <ListGroup.Item>Item</ListGroup.Item>
-            <ListGroup.Item>Item</ListGroup.Item>
-            <ListGroup.Item>Item</ListGroup.Item>
-            <ListGroup.Item>Item</ListGroup.Item>
-          </ListGroup> */}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleSubmit}>
-            Submit Project
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import ProjectList from "./components/ProjectList";
+import AddProject from "./components/AddProject";
 
 function App() {
   const [isAuth, setIsAuth] = useState(false);
@@ -42,6 +43,7 @@ function App() {
           <GuestRoute path="/login" exact component={Login} />
           <GuestRoute path="/register" exact component={Register} />
           <ProtectedRoute path="/" exact component={ProjectList} />
+          <ProtectedRoute path="/add_project" exact component={AddProject} />
         </Switch>
       </Router>
     </>

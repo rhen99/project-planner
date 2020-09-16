@@ -34,8 +34,18 @@ router.post("/create", auth, async (req, res) => {
   const { name, description, steps, deadline } = req.body;
   if (!name || !steps || !deadline)
     return res.status(400).json({
-      msg: "Please fill in all fields.",
+      msg: "Please fill in all required fields.",
     });
+
+  if (new Date(deadline).getTime() - Date.now() <= 0)
+    return res.status(400).json({
+      msg: "Please enter a proper deadline",
+    });
+  if (steps.length < 1)
+    return res.status(400).json({
+      msg: "Please enter your steps",
+    });
+
   try {
     const newProject = await new Project({
       name,
@@ -64,7 +74,7 @@ router.put("/:id&:step", auth, async (req, res) => {
     const steps = project.steps;
     if (new Date(project.deadline).getTime() - Date.now() <= 0) {
       return res.status(409).json({
-        msg: "This project had already reached the deadline.",
+        msg: "Project already reached the deadline.",
       });
     } else {
       if (steps[req.params.step].completed == 0) {
