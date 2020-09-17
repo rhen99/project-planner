@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import ListGroup from "react-bootstrap/ListGroup";
@@ -7,8 +7,10 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Alert from "react-bootstrap/Alert";
 import axios from "axios";
+import { Redirect } from "react-router-dom";
 
 function AddProject() {
+  const [redirect, setRedirect] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [step, setStep] = useState("");
@@ -24,12 +26,7 @@ function AddProject() {
 
   const errorAlert = !error ? null : <Alert variant="danger">{error}</Alert>;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError(null);
-    if (!month || !day || !year)
-      return setError("Please fill in all required fields.");
-
+  const handleDeadline = () => {
     const date = [month, day, year];
     const time = [hour, minutes];
 
@@ -53,6 +50,15 @@ function AddProject() {
       })
       .join(":");
     setDeadline(`${zeroesOnDate} ${zeroesOnTime} ${ampm}`);
+  };
+  useEffect(() => {
+    handleDeadline();
+  }, [month, day, year, hour, minutes, ampm]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    setError(null);
     axios
       .post(
         "/api/projects/create",
@@ -63,7 +69,10 @@ function AddProject() {
           },
         }
       )
-      .then((res) => console.log(res.data))
+      .then((res) => {
+        localStorage.setItem("success", res.data.msg);
+        setRedirect(true);
+      })
       .catch((err) => setError(err.response.data.msg));
   };
   const addStep = (e) => {
@@ -77,6 +86,7 @@ function AddProject() {
     newSteps.splice(index, 1);
     setSteps(newSteps);
   };
+  if (redirect) return <Redirect to="/" exact />;
 
   return (
     <Container>

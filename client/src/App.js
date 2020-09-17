@@ -35,6 +35,19 @@ function App() {
       setIsAuth(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      axios
+        .get("/api/projects", {
+          headers: {
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        })
+        .then((res) => setProjects([...projects, ...res.data]))
+        .catch((err) => console.log(err));
+    }
+  }, []);
   return (
     <>
       <Router>
@@ -42,7 +55,12 @@ function App() {
         <Switch>
           <GuestRoute path="/login" exact component={Login} />
           <GuestRoute path="/register" exact component={Register} />
-          <ProtectedRoute path="/" exact component={ProjectList} />
+          <ProtectedRoute
+            path="/"
+            exact
+            render={() => <ProjectList projects={projects} />}
+          />
+
           <ProtectedRoute path="/add_project" exact component={AddProject} />
         </Switch>
       </Router>

@@ -10,7 +10,7 @@ const Project = require("../../models/Project");
 
 router.get("/", auth, async (req, res) => {
   try {
-    const projects = await Project.find();
+    const projects = await Project.find({ creator_id: req.user.id });
     projects.forEach((project) => {
       if (new Date(project.deadline).getTime() - Date.now() <= 0) {
         project.status = "Failed";
