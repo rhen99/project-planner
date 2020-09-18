@@ -58,10 +58,16 @@ function App() {
           <ProtectedRoute
             path="/"
             exact
-            render={() => <ProjectList projects={projects} />}
+            component={() => <ProjectList projects={projects} />}
           />
 
-          <ProtectedRoute path="/add_project" exact component={AddProject} />
+          <ProtectedRoute
+            path="/add_project"
+            exact
+            component={() => (
+              <AddProject projects={projects} setProjects={setProjects} />
+            )}
+          />
         </Switch>
       </Router>
     </>

@@ -9,7 +9,7 @@ import Alert from "react-bootstrap/Alert";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 
-function AddProject() {
+function AddProject({ setProjects, projects }) {
   const [redirect, setRedirect] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -70,6 +70,7 @@ function AddProject() {
         }
       )
       .then((res) => {
+        setProjects([...projects, res.data.project]);
         localStorage.setItem("success", res.data.msg);
         setRedirect(true);
       })

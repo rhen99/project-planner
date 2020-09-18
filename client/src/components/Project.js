@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Card from "react-bootstrap/Card";
 import Progress from "react-bootstrap/ProgressBar";
 import AccordionToggle from "react-bootstrap/AccordionToggle";
@@ -6,7 +6,6 @@ import AccordionCollapse from "react-bootstrap/AccordionCollapse";
 import StepList from "./StepList";
 
 function Project({ project }) {
-  useEffect(() => {}, [project]);
   return (
     <Card>
       <AccordionToggle as={Card.Header} variant="link" eventKey={project._id}>

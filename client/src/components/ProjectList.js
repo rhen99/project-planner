@@ -8,7 +8,7 @@ import Row from "react-bootstrap/Row";
 import Alert from "react-bootstrap/Alert";
 import { Link } from "react-router-dom";
 
-function ProjectList({ projects }) {
+function ProjectList({ projects, setProjects }) {
   const [success, setSuccess] = useState(null);
 
   const successAlert = !success ? null : (
@@ -22,6 +22,7 @@ function ProjectList({ projects }) {
       setSuccess(localStorage.getItem("success"));
     localStorage.removeItem("success");
   }, []);
+
   return (
     <Container>
       <Row className="mt-5">

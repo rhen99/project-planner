@@ -13,8 +13,10 @@ router.get("/", auth, async (req, res) => {
     const projects = await Project.find({ creator_id: req.user.id });
     projects.forEach((project) => {
       if (new Date(project.deadline).getTime() - Date.now() <= 0) {
-        project.status = "Failed";
-        project.save();
+        if (project.status === "Success") {
+          project.status = "Failed";
+          project.save();
+        }
       }
     });
     res.json(projects);
@@ -111,9 +113,11 @@ router.put("/:id&:step", auth, async (req, res) => {
       steps[req.params.step].completed == 1
         ? {
             msg: "Step done",
+            project,
           }
         : {
             msg: "Step Undone",
+            project,
           }
     );
   } catch (err) {
