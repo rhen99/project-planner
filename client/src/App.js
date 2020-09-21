@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Switch, BrowserRouter as Router } from "react-router-dom";
-import { ProtectedRoute, GuestRoute } from "./components/Route";
+import { Switch, BrowserRouter as Router, Route } from "react-router-dom";
 import axios from "axios";
 import Header from "./components/Header";
 import Login from "./components/Login";
@@ -53,18 +52,18 @@ function App() {
       <Router>
         <Header isAuth={isAuth} setIsAuth={setIsAuth}></Header>
         <Switch>
-          <GuestRoute path="/login" exact component={Login} />
-          <GuestRoute path="/register" exact component={Register} />
-          <ProtectedRoute
+          <Route path="/login" exact component={Login} />
+          <Route path="/register" exact component={Register} />
+          <Route
             path="/"
             exact
-            component={() => <ProjectList projects={projects} />}
+            render={() => <ProjectList projects={projects} />}
           />
 
-          <ProtectedRoute
+          <Route
             path="/add_project"
             exact
-            component={() => (
+            render={() => (
               <AddProject projects={projects} setProjects={setProjects} />
             )}
           />

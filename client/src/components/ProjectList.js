@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Redirect } from "react-router-dom";
 import Accordion from "react-bootstrap/Accordion";
 import Project from "./Project";
 import Button from "react-bootstrap/Button";
@@ -23,26 +24,30 @@ function ProjectList({ projects, setProjects }) {
     localStorage.removeItem("success");
   }, []);
 
-  return (
-    <Container>
-      <Row className="mt-5">
-        <Col>
-          <h1>Your Projects</h1>
-          <div className="my-3">
-            {successAlert}
-            <Button as={Link} to="/add_project">
-              Add Project
-            </Button>
-          </div>
-          <Accordion>
-            {projects.map((project) => (
-              <Project key={project._id} project={project} />
-            ))}
-          </Accordion>
-        </Col>
-      </Row>
-    </Container>
-  );
+  if (!localStorage.getItem("token")) {
+    return <Redirect to="/login" exact />;
+  } else {
+    return (
+      <Container>
+        <Row className="mt-5">
+          <Col>
+            <h1>Your Projects</h1>
+            <div className="my-3">
+              {successAlert}
+              <Button as={Link} to="/add_project">
+                Add Project
+              </Button>
+            </div>
+            <Accordion>
+              {projects.map((project) => (
+                <Project key={project._id} project={project} />
+              ))}
+            </Accordion>
+          </Col>
+        </Row>
+      </Container>
+    );
+  }
 }
 
 export default ProjectList;

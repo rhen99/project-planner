@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -7,7 +7,15 @@ import Alert from "react-bootstrap/Alert";
 import axios from "axios";
 import moment from "moment";
 
-function Step({ step, projectId, index }) {
+function Step({
+  status,
+  step,
+  projectId,
+  index,
+  setProgress,
+  stepsLength,
+  completed,
+}) {
   const [show, setShow] = useState(false);
   const [shortDesc, setShortDesc] = useState(step.short_description);
   const [stepProp, setStepProp] = useState(step);
@@ -36,6 +44,13 @@ function Step({ step, projectId, index }) {
       .then(() => {
         setShow(false);
         setStepProp({ ...stepProp, completed: 1 });
+        setProgress(() => {
+          completed.push(stepProp);
+          const currentProgress = completed
+            .map(() => 100 / stepsLength)
+            .reduce((acc, curr) => acc + curr, 0);
+          return currentProgress;
+        });
         setDate(moment(Date.now()).format("MM/DD/YY hh:mm a"));
       })
       .catch((err) => setError(err.response.data.msg));
@@ -55,7 +70,11 @@ function Step({ step, projectId, index }) {
         >
           {step.step_name}
         </h6>
-        {stepProp.completed === 0 ? (
+        {status === "Failed" ? (
+          <Button className="float-right" variant="success" disabled size="sm">
+            Clear Step
+          </Button>
+        ) : stepProp.completed === 0 ? (
           <Button
             className="float-right"
             variant="success"

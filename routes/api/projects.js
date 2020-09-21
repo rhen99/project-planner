@@ -13,7 +13,7 @@ router.get("/", auth, async (req, res) => {
     const projects = await Project.find({ creator_id: req.user.id });
     projects.forEach((project) => {
       if (new Date(project.deadline).getTime() - Date.now() <= 0) {
-        if (project.status === "Success") {
+        if (project.status !== "Success") {
           project.status = "Failed";
           project.save();
         }
