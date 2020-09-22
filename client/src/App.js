@@ -57,7 +57,9 @@ function App() {
           <Route
             path="/"
             exact
-            render={() => <ProjectList projects={projects} />}
+            render={() => (
+              <ProjectList projects={projects} setProjects={setProjects} />
+            )}
           />
 
           <Route

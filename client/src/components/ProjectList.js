@@ -39,8 +39,14 @@ function ProjectList({ projects, setProjects }) {
               </Button>
             </div>
             <Accordion>
-              {projects.map((project) => (
-                <Project key={project._id} project={project} />
+              {projects.map((project, index) => (
+                <Project
+                  key={project._id}
+                  project={project}
+                  index={index}
+                  setProjects={setProjects}
+                  projects={projects}
+                />
               ))}
             </Accordion>
           </Col>

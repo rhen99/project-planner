@@ -6,7 +6,7 @@ const Project = require("../../models/Project");
 
 // @route GET api/projects/
 // @desc Get all your projects
-// @access Private (for now)
+// @access Private
 
 router.get("/", auth, async (req, res) => {
   try {
@@ -30,7 +30,7 @@ router.get("/", auth, async (req, res) => {
 
 // @route POST api/projects/create
 // @desc Create new project
-// @access Public (for now)
+// @access Private
 
 router.post("/create", auth, async (req, res) => {
   const { name, description, steps, deadline } = req.body;
@@ -69,6 +69,11 @@ router.post("/create", auth, async (req, res) => {
     });
   }
 });
+
+// @route PUT api/projects/:id&:step
+// @desc Update a project.
+// @access Private
+
 router.put("/:id&:step", auth, async (req, res) => {
   const { short_description } = req.body;
   try {
@@ -128,4 +133,17 @@ router.put("/:id&:step", auth, async (req, res) => {
   }
 });
 
+// @route DELETE api/projects/:id
+// @desc Delete a project.
+// @access Private
+
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    await Project.deleteOne({ _id: req.params.id });
+    res.json({ msg: "Deleted Successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json("Server Error");
+  }
+});
 module.exports = router;
