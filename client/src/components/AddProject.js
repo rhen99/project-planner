@@ -7,6 +7,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Alert from "react-bootstrap/Alert";
 import axios from "axios";
+import moment from "moment";
 import { Redirect, Link } from "react-router-dom";
 
 function AddProject({ setProjects, projects }) {
@@ -49,7 +50,11 @@ function AddProject({ setProjects, projects }) {
         }
       })
       .join(":");
-    setDeadline(`${zeroesOnDate} ${zeroesOnTime} ${ampm}`);
+    setDeadline(
+      moment(`${zeroesOnDate} ${zeroesOnTime} ${ampm}`).format(
+        "MM/DD/YYYY HH:mm"
+      )
+    );
   };
   useEffect(() => {
     handleDeadline();
