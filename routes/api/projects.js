@@ -39,7 +39,7 @@ router.post("/create", auth, async (req, res) => {
       msg: "Please fill in all required fields.",
     });
 
-  if (new Date(project.deadline).getTime() - new Date().getTime() <= 0)
+  if (new Date(deadline).getTime() - new Date().getTime() <= 0)
     return res.status(400).json({
       msg: "Please enter a proper deadline",
     });
