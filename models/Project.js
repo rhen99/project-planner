@@ -38,10 +38,6 @@ const projectSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  deadline: {
-    type: String,
-    required: true,
-  },
   creator_id: {
     type: String,
     required: true,

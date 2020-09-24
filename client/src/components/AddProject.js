@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import ListGroup from "react-bootstrap/ListGroup";
@@ -7,7 +7,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Alert from "react-bootstrap/Alert";
 import axios from "axios";
-import moment from "moment";
+
 import { Redirect, Link } from "react-router-dom";
 
 function AddProject({ setProjects, projects }) {
@@ -16,49 +16,9 @@ function AddProject({ setProjects, projects }) {
   const [description, setDescription] = useState("");
   const [step, setStep] = useState("");
   const [steps, setSteps] = useState([]);
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
-  const [day, setDay] = useState(new Date().getDate());
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [hour, setHour] = useState(12);
-  const [minutes, setMinutes] = useState(0);
-  const [ampm, setAMPM] = useState("am");
-  const [deadline, setDeadline] = useState("");
   const [error, setError] = useState(null);
 
   const errorAlert = !error ? null : <Alert variant="danger">{error}</Alert>;
-
-  const handleDeadline = () => {
-    const date = [month, day, year];
-    const time = [hour, minutes];
-
-    const zeroesOnDate = date
-      .map((num) => {
-        if (parseInt(num) < 10) {
-          return `0${num}`;
-        } else {
-          return num;
-        }
-      })
-      .join("/");
-
-    const zeroesOnTime = time
-      .map((num) => {
-        if (parseInt(num) < 10) {
-          return `0${num}`;
-        } else {
-          return num;
-        }
-      })
-      .join(":");
-    setDeadline(
-      moment(`${zeroesOnDate} ${zeroesOnTime} ${ampm}`).format(
-        "MM/DD/YYYY HH:mm"
-      )
-    );
-  };
-  useEffect(() => {
-    handleDeadline();
-  }, [month, day, year, hour, minutes, ampm]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -67,7 +27,7 @@ function AddProject({ setProjects, projects }) {
     axios
       .post(
         "/api/projects/create",
-        { name, description, steps, deadline },
+        { name, description, steps },
         {
           headers: {
             "x-auth-token": localStorage.getItem("token"),
@@ -162,81 +122,6 @@ function AddProject({ setProjects, projects }) {
                 </ListGroup>
                 <Form.Text className="text-muted">
                   Enter all the steps here. (required)
-                </Form.Text>
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Deadline</Form.Label>
-                <Form.Row>
-                  <Col>
-                    <input
-                      type="number"
-                      min="1"
-                      max="12"
-                      className="form-control"
-                      placeholder="Month"
-                      onChange={(e) => setMonth(e.target.value)}
-                      value={month < 10 ? `0${month}` : month}
-                    />
-                  </Col>
-                  <Col>
-                    <input
-                      type="number"
-                      min="1"
-                      max="31"
-                      className="form-control"
-                      placeholder="Day"
-                      onChange={(e) => setDay(e.target.value)}
-                      value={day < 10 ? `0${day}` : day}
-                    />
-                  </Col>
-                  <Col>
-                    <input
-                      type="number"
-                      min={new Date().getFullYear()}
-                      className="form-control"
-                      placeholder="Year"
-                      onChange={(e) => setYear(e.target.value)}
-                      value={year}
-                    />
-                  </Col>
-                </Form.Row>
-                <Form.Row className="mt-3">
-                  <Col>
-                    <input
-                      type="number"
-                      min="1"
-                      max="12"
-                      value={hour < 10 ? `0${hour}` : hour}
-                      className="form-control"
-                      placeholder="Hour"
-                      onChange={(e) => setHour(e.target.value)}
-                    />
-                  </Col>
-                  <Col>
-                    <input
-                      type="number"
-                      min="0"
-                      max="59"
-                      value={minutes < 10 ? `0${minutes}` : minutes}
-                      className="form-control"
-                      placeholder="Minutes"
-                      onChange={(e) => setMinutes(e.target.value)}
-                    />
-                  </Col>
-                  <Col>
-                    <Form.Control
-                      as="select"
-                      onChange={(e) => setAMPM(e.target.value)}
-                    >
-                      <option value="am" defaultValue>
-                        AM
-                      </option>
-                      <option value="pm">PM</option>
-                    </Form.Control>
-                  </Col>
-                </Form.Row>
-                <Form.Text className="text-muted">
-                  Enter project deadline here. (required)
                 </Form.Text>
               </Form.Group>
 

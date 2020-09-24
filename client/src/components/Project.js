@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Card from "react-bootstrap/Card";
 import Progress from "react-bootstrap/ProgressBar";
 import AccordionToggle from "react-bootstrap/AccordionToggle";
@@ -10,7 +10,6 @@ import axios from "axios";
 
 function Project({ project, projects, index, setProjects }) {
   const [progress, setProgress] = useState(project.progress);
-  const [timer, setTimer] = useState(null);
   const [show, setShow] = useState(false);
   const statusClassName =
     project.status === "Success"
@@ -37,38 +36,6 @@ function Project({ project, projects, index, setProjects }) {
         console.log(err.response.msg);
       });
   };
-  const countDownTimer = () => {
-    const countDownDate = new Date(project.deadline).getTime();
-
-    let timer;
-
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-
-      const distance = countDownDate - now;
-
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-      );
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      timer = `${days < 10 ? "0" + days : days}d ${
-        hours < 10 ? "0" + hours : hours
-      }h ${minutes < 10 ? "0" + minutes : minutes}m ${
-        seconds < 10 ? "0" + seconds : seconds
-      }s`;
-      setTimer(timer);
-      if (distance < 0) {
-        clearInterval(interval);
-        setTimer("00d 00h 00m 00s");
-      }
-    }, 1000);
-  };
-  useEffect(() => {
-    countDownTimer();
-  }, []);
   return (
     <Card>
       <AccordionToggle as={Card.Header} variant="link" eventKey={project._id}>
@@ -90,9 +57,7 @@ function Project({ project, projects, index, setProjects }) {
       <AccordionCollapse eventKey={project._id}>
         <Card.Body>
           <p>{project.description}</p>
-          <p>
-            <span className="font-weight-bold">Time Left</span>: {timer}
-          </p>
+
           <h6>{Math.round(progress)}% Done</h6>
           <Progress now={progress} variant="success" className="mb-3" />
           <StepList

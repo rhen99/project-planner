@@ -11,14 +11,6 @@ const Project = require("../../models/Project");
 router.get("/", auth, async (req, res) => {
   try {
     const projects = await Project.find({ creator_id: req.user.id });
-    projects.forEach((project) => {
-      if (new Date(project.deadline).getTime() - new Date().getTime() <= 0) {
-        if (project.status !== "Success") {
-          project.status = "Failed";
-          project.save();
-        }
-      }
-    });
     res.json(projects);
   } catch (err) {
     console.log(err);
@@ -33,16 +25,12 @@ router.get("/", auth, async (req, res) => {
 // @access Private
 
 router.post("/create", auth, async (req, res) => {
-  const { name, description, steps, deadline } = req.body;
-  if (!name || !steps || !deadline)
+  const { name, description, steps } = req.body;
+  if (!name || !steps)
     return res.status(400).json({
       msg: "Please fill in all required fields.",
     });
 
-  if (new Date(deadline).getTime() - new Date().getTime() <= 0)
-    return res.status(400).json({
-      msg: "Please enter a proper deadline",
-    });
   if (steps.length < 1)
     return res.status(400).json({
       msg: "Please enter your steps",
@@ -52,7 +40,6 @@ router.post("/create", auth, async (req, res) => {
     const newProject = await new Project({
       name,
       description,
-      deadline,
       steps,
       creator_id: req.user.id,
     });
@@ -79,29 +66,24 @@ router.put("/:id&:step", auth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
     const steps = project.steps;
-    if (new Date(project.deadline).getTime() - Date.now() <= 0) {
-      return res.status(409).json({
-        msg: "Project already reached the deadline.",
-      });
+
+    if (steps[req.params.step].completed == 0) {
+      if (!short_description)
+        return res.status(400).json({
+          msg: "Please describe what you did in this step.",
+        });
+
+      steps[req.params.step].completed = 1;
+
+      steps[req.params.step].short_description = short_description;
+
+      steps[req.params.step].date = Date.now();
     } else {
-      if (steps[req.params.step].completed == 0) {
-        if (!short_description)
-          return res.status(400).json({
-            msg: "Please describe what you did in this step.",
-          });
+      steps[req.params.step].completed = 0;
 
-        steps[req.params.step].completed = 1;
+      steps[req.params.step].short_description = null;
 
-        steps[req.params.step].short_description = short_description;
-
-        steps[req.params.step].date = Date.now();
-      } else {
-        steps[req.params.step].completed = 0;
-
-        steps[req.params.step].short_description = null;
-
-        steps[req.params.step].date = null;
-      }
+      steps[req.params.step].date = null;
     }
 
     const progress = steps
